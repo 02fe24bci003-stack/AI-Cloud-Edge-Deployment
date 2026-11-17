@@ -4,6 +4,8 @@ from pydantic import BaseModel
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 import time
+import psutil
+import os
 
 app = FastAPI(title="AI Cloud and Edge Application")
 
@@ -71,8 +73,13 @@ def predict(data: UserInput):
 
     response_time = (end_time - start_time) * 1000
 
+    # Measure application process memory
+    process = psutil.Process(os.getpid())
+    memory_usage = process.memory_info().rss / (1024 * 1024)
+
     return {
         "input_text": data.text,
         "predicted_sentiment": prediction,
-        "response_time_ms": round(response_time, 3)
+        "response_time_ms": round(response_time, 3),
+        "memory_usage_mb": round(memory_usage, 2)
     }
